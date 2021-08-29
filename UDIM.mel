@@ -1,0 +1,54 @@
+global proc moveUV()
+{
+    select -hi;
+    string $geo[] = `ls -sl -g`;
+    float $u;
+    float $v;
+    int $num;
+    select -cl;
+    
+    $num = `intSliderGrp -q -value numSlider`;
+    
+    for($i in $geo)
+    {
+        select $i;
+        if(`checkBox -q -value autoCheck`)
+        {
+            polyAutoProjection -lm 0 -pb 0 -ibd 1 -cm 0 -l 2 -sc 1 -o 1 -p 6 -ps 0.2 -ws 0 $i.f[0:5];
+        }
+        if(`checkBox -q -value UDIMCheck`)
+        {
+            polyMoveUV -t $u $v;
+        }
+        $u++;
+        
+        if($u == $num)
+        {
+            $u = 0;
+            $v++;
+        }
+    }
+    select -cl;
+}
+
+global proc UDIM()
+{
+    string $winName = `window -t "UDIM"`;
+    columnLayout;
+    
+    string $t = `rowLayout -numberOfColumns 2`;
+    checkBox -label "autmatic" autoCheck;
+    checkBox -label "UDIM" UDIMCheck;
+    setParent ..;
+    
+    intSliderGrp -label "Number of rows" -field true -min 0 -max 30 -value 0 numSlider;
+    
+    text "Please select an object and then run";
+    
+    string $t = `rowLayout -numberOfColumns 2`;
+    button -label "run" -command "moveUV()";
+    string $b = `button -label "close" -command("deleteUI " + $winName)`;
+    setParent ..;
+    
+    showWindow;
+}
